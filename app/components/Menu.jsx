@@ -1,3 +1,4 @@
+"use client"
 import { Label } from "@/components/ui/label";
 import { SelectGroup, SelectItem, SelectLabel } from "@/components/ui/select";
 import {
@@ -7,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import axios from "axios";
+import { LogInIcon, MessageCircle, PlusIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -21,6 +23,8 @@ export const model = {
   แปลภาษา: {
     แปลอังกฤษเป็นไทย: "en2th",
     แปลไทยเป็นอังกฤษ: "th2en",
+    แปลไทยเป็นจีน: "th2zh",
+    แปลจีนเป็นไทย: "zh2th",
   },
   รูปภาพ: {
     วิเคราะห์ภาพ: "vqa",
@@ -29,7 +33,7 @@ export const model = {
   },
 };
 
-const Menu = ({ mode, setMode, setMessages, setUser }) => {
+const Menu = ({ mode, setMode, setMessages, setUser, setCon }) => {
   const [chats, setChats] = useState([]);
   const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const router = useRouter();
@@ -93,9 +97,23 @@ const Menu = ({ mode, setMode, setMessages, setUser }) => {
 
         <div className="flex gap-1 flex-col space-y-1.5 mt-6">
           <Label htmlFor="email">ประวัติการแชท</Label>
+
+          <div
+        className={`flex gap-2 place-items-center border border-white/10 rounded-md p-2 cursor-pointer`}
+        onClick={() => {
+          setMessages([
+            { text: "สวัสดี วันนี้ฉันจะช่วยเหลือคุณได้อย่างไร?", sender: "bot" },
+          ])
+          setCon("")
+          router.push("/");
+        }}
+      >
+        <PlusIcon /> เพิ่มแชทใหม่
+      </div>
+
           {chats.map((d) => (
             <div
-              className={`border border-white/10 rounded-md p-2 cursor-pointer ${
+              className={`flex items-center gap-2 border border-white/10 rounded-md p-2 cursor-pointer ${
                 d._id == conver ? "bg-white text-black" : ""
               }`}
               onClick={() => {
@@ -111,20 +129,21 @@ const Menu = ({ mode, setMode, setMessages, setUser }) => {
               }}
               key={d._id}
             >
-              CHAT: {d.name ?? "แชทใหม่"}
+              <MessageCircle className="text-sm"/> {d.name ?? "แชทใหม่"}
             </div>
           ))}
         </div>
       </div>
 
       <div
-        className={`border border-white/10 rounded-md p-2 cursor-pointer`}
+        className={`flex items-center gap-2 border border-white/10 rounded-md p-2 cursor-pointer`}
         onClick={() => {
           localStorage.removeItem("token");
           router.push("/auth/login");
           setUser({ isLogin: false, username: "" });
         }}
       >
+        <LogInIcon />
         ออกจากระบบ
       </div>
     </div>

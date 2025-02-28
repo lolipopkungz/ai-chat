@@ -10,11 +10,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter, useSearchParams } from "next/navigation";
-
-export default function ChatUI({ mode, setMode, messages, setMessages }) {
+import { toast } from "react-toastify";
+export default function ChatUI({ mode, setMode, messages, setMessages, con, setCon }) {
   const [keyword, setKeyWord] = useState("");
   const bottomRef = useRef(null);
-  const [con, setCon] = useState("");
   
 
   const imgMode = ["tfood", "vqa", "lpr"];
@@ -46,6 +45,8 @@ export default function ChatUI({ mode, setMode, messages, setMessages }) {
       })
       .then((res) => {
         if (res.data.status) {
+          setCon("")
+          toast.success("ลบแชทแล้ว")
           setMessages([
             { text: "สวัสดี วันนี้ฉันจะช่วยเหลือคุณได้อย่างไร?", sender: "bot" },
           ])
@@ -233,13 +234,31 @@ export default function ChatUI({ mode, setMode, messages, setMessages }) {
           { text: response.data.translate.translated_text, sender: "bot" },
         ]);
       } else if (
-        mode === "th2en" &&
+        (mode === "th2en") &&
         response.data.translate &&
         response.data.translate.translated_text
       ) {
         setMessages((prev) => [
           ...prev,
           { text: response.data.translate.translated_text, sender: "bot" },
+        ]);
+      } else if (
+        (mode === "th2zh") &&
+        response.data.translate &&
+        response.data.translate.output
+      ) {
+        setMessages((prev) => [
+          ...prev,
+          { text: response.data.translate.output, sender: "bot" },
+        ]);
+      } else if (
+        (mode === "zh2th") &&
+        response.data.translate &&
+        response.data.translate.output
+      ) {
+        setMessages((prev) => [
+          ...prev,
+          { text: response.data.translate.output, sender: "bot" },
         ]);
       } else if (mode === "vqa" && response.data.answer) {
         setMessages((prev) => [

@@ -6,6 +6,7 @@ import { Label } from '@radix-ui/react-label';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
+import { toast } from 'react-toastify';
 
 const LoginPage = () => {
   const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -18,6 +19,7 @@ const LoginPage = () => {
     const response = await axios.post(`${API_URL}/login`, {username,password})
     if(response.data.status){
       localStorage.setItem("token", response.data.access_token)
+      toast.success("เข้าสู่ระบบแล้ว")
       router.push('/')
     }
   }

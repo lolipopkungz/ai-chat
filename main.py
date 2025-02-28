@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from aift import setting
 from aift.nlp.longan import tokenizer
 from aift.multimodal import textqa, vqa
-from aift.nlp.translation import en2th, th2en
+from aift.nlp.translation import en2th, th2en, th2zh, zh2th
 from aift.nlp import sentiment
 from aift.speech import tts
 from dotenv import load_dotenv
@@ -214,13 +214,13 @@ async def emonews_text(request: TextRequest, current_user: str = Depends(get_cur
     text_response = f"""**ผลการวิเคราะห์อารมณ์จากข้อความ**
 ข้อความ: {response['text']}
 ผลลัพธ์:
-ไม่ชัดเจน: {result['neutral']}
-ความพึงพอใจ: {result['pleasant']}
-ความสุข: {result['joy']}
-ความตกใจ: {result['surprise']}
-ความโกรธ: {result['anger']}
-ความกลัว: {result['fear']}
-ความเศร้า: {result['sadness']}
+😕 ไม่ชัดเจน: {result['neutral']}
+☺️ ความพึงพอใจ: {result['pleasant']}
+😊 ความสุข: {result['joy']}
+😲 ความตกใจ: {result['surprise']}
+😠 ความโกรธ: {result['anger']}
+😨 ความกลัว: {result['fear']}
+😔 ความเศร้า: {result['sadness']}
 """
 
     
@@ -333,6 +333,45 @@ async def en2th_text(request: TextRequest, current_user: str = Depends(get_curre
     updateConverName(conver_id, request.text)
     return {"translate": response}
 
+
+@app.post("/th2zh")
+async def th2zh_text(request: TextRequest, current_user: str = Depends(get_current_user)):
+    try:
+        conver_id = ObjectId(request.conver) if request.conver else None
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid conver ID")
+        
+    response = th2zh.translate(request.text, return_json=True)
+    chat_collection.insert_one({
+        "user": ObjectId(current_user['id']),
+        "input": request.text,
+        "conver": conver_id,
+        "type": "th2zh",
+        "answer": response['output']
+    })
+
+    updateConverName(conver_id, request.text)
+    return {"translate": response}
+
+@app.post("/zh2th")
+async def th2zh_text(request: TextRequest, current_user: str = Depends(get_current_user)):
+    try:
+        conver_id = ObjectId(request.conver) if request.conver else None
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid conver ID")
+        
+    response = zh2th.translate(request.text, return_json=True)
+    chat_collection.insert_one({
+        "user": ObjectId(current_user['id']),
+        "input": request.text,
+        "conver": conver_id,
+        "type": "zh2th",
+        "answer": response['output']
+    })
+
+    updateConverName(conver_id, request.text)
+    return {"translate": response}
+
 @app.post("/tts")
 async def tts_text(request: TextRequest, current_user: str = Depends(get_current_user)):
    try:
@@ -352,6 +391,7 @@ async def tts_text(request: TextRequest, current_user: str = Depends(get_current
     updateConverName(conver_id, request.text)
     return {"answer": response}
    except Exception as e:
+        print(e)
         return {"answer": "เกิดข้อผิดพลาด"}
 
 @app.post("/tfood")

@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 
 export default function Home() {
+  const [con, setCon] = useState("");
   const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [mode, setMode] = useState("textqa");
   const [user, setUser] = useState({
@@ -44,8 +45,9 @@ export default function Home() {
 
   return (
     <div className="flex">
-      <Menu mode={mode} setMode={setMode} messages={messages} setMessages={setMessages} setUser={setUser}/>
-      <ChatUI mode={mode} setMode={setMode} messages={messages} setMessages={setMessages}/>
+    
+      <Menu mode={mode} setMode={setMode} messages={messages} setMessages={setMessages} setUser={setUser} setCon={setCon}/>
+      <ChatUI mode={mode} setMode={setMode} messages={messages} setMessages={setMessages} con={con} setCon={setCon}/>
     </div>
   );
 }

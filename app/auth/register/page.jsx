@@ -6,7 +6,7 @@ import { Label } from '@radix-ui/react-label';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
-
+import { toast } from 'react-toastify';
 const RegisterPage = () => {
   const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const [username, setUsername] = useState("")
@@ -17,9 +17,14 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if(repassword !== password) return
-    const response = await axios.post(`${API_URL}/register`, {username,password})
+    try {
+      const response = await axios.post(`${API_URL}/register`, {username,password})
     if(response.data.status){
+      toast.success("สมัครสมาชิกสำเร็จ")
       router.push('/auth/login')
+    }
+    } catch {
+      toast.error("มีผู้ใช้งานนี้ในระบบแล้ว")
     }
   }
 
